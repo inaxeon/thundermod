@@ -1,0 +1,29 @@
+[Defines]
+  INF_VERSION = 0x00013370
+  BASE_NAME = PciDxeShim
+  FILE_GUID = 4F6BB4C2-5EB0-4E21-9069-690445F14C4E
+  MODULE_TYPE = DXE_DRIVER
+  VERSION_STRING = 1.0
+  ENTRY_POINT = PciDxeShimMain
+
+[Sources]
+  PciDxeShim.c
+  PciBridgeIoShim.c
+  PciResourceAllocationShim.c
+  ../../edk2/MdeModulePkg/Bus/Pci/PciBusDxe/ComponentName.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiLib
+
+[Protocols]
+  gEfiPciHotPlugInitProtocolGuid
+  gEfiPciRootBridgeIoProtocolGuid
+  gEfiPciHostBridgeResourceAllocationProtocolGuid
+
+[Depex]
+  TRUE

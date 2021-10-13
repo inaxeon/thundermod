@@ -1,0 +1,71 @@
+diff --git a/MdeModulePkg/MdeModulePkg.dsc b/MdeModulePkg/MdeModulePkg.dsc
+index b1d8346186..33f8eb94bd 100644
+--- a/MdeModulePkg/MdeModulePkg.dsc
++++ b/MdeModulePkg/MdeModulePkg.dsc
+@@ -69,7 +69,7 @@
+   UefiScsiLib|MdePkg/Library/UefiScsiLib/UefiScsiLib.inf
+   SecurityManagementLib|MdeModulePkg/Library/DxeSecurityManagementLib/DxeSecurityManagementLib.inf
+   TimerLib|MdePkg/Library/BaseTimerLibNullTemplate/BaseTimerLibNullTemplate.inf
+-  SerialPortLib|MdePkg/Library/BaseSerialPortLibNull/BaseSerialPortLibNull.inf
++  SerialPortLib|PcAtChipsetPkg/Library/SerialIoLib/SerialIoLib.inf
+   CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibNull/DxeCapsuleLibNull.inf
+   PcdLib|MdePkg/Library/BasePcdLibNull/BasePcdLibNull.inf
+   CustomizedDisplayLib|MdeModulePkg/Library/CustomizedDisplayLib/CustomizedDisplayLib.inf
+@@ -77,7 +77,7 @@
+   #
+   # Misc
+   #
+-  DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
++  DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
+   DebugPrintErrorLevelLib|MdePkg/Library/BaseDebugPrintErrorLevelLib/BaseDebugPrintErrorLevelLib.inf
+   ReportStatusCodeLib|MdePkg/Library/BaseReportStatusCodeLibNull/BaseReportStatusCodeLibNull.inf
+   PeCoffExtraActionLib|MdePkg/Library/BasePeCoffExtraActionLibNull/BasePeCoffExtraActionLibNull.inf
+@@ -132,7 +132,7 @@
+ [LibraryClasses.common.DXE_RUNTIME_DRIVER]
+   HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
+   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
+-  DebugLib|MdePkg/Library/UefiDebugLibConOut/UefiDebugLibConOut.inf
++  DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
+   LockBoxLib|MdeModulePkg/Library/SmmLockBoxLib/SmmLockBoxDxeLib.inf
+   CapsuleLib|MdeModulePkg/Library/DxeCapsuleLibFmp/DxeRuntimeCapsuleLib.inf
+   VariablePolicyLib|MdeModulePkg/Library/VariablePolicyLib/VariablePolicyLibRuntimeDxe.inf
+@@ -146,7 +146,7 @@
+ 
+ [LibraryClasses.common.DXE_SMM_DRIVER]
+   HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
+-  DebugLib|MdePkg/Library/BaseDebugLibNull/BaseDebugLibNull.inf
++  DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
+   MemoryAllocationLib|MdePkg/Library/SmmMemoryAllocationLib/SmmMemoryAllocationLib.inf
+   MmServicesTableLib|MdePkg/Library/MmServicesTableLib/MmServicesTableLib.inf
+   SmmServicesTableLib|MdePkg/Library/SmmServicesTableLib/SmmServicesTableLib.inf
+@@ -156,7 +156,7 @@
+ [LibraryClasses.common.UEFI_DRIVER]
+   HobLib|MdePkg/Library/DxeHobLib/DxeHobLib.inf
+   MemoryAllocationLib|MdePkg/Library/UefiMemoryAllocationLib/UefiMemoryAllocationLib.inf
+-  DebugLib|MdePkg/Library/UefiDebugLibConOut/UefiDebugLibConOut.inf
++  DebugLib|MdePkg/Library/BaseDebugLibSerialPort/BaseDebugLibSerialPort.inf
+   LockBoxLib|MdeModulePkg/Library/SmmLockBoxLib/SmmLockBoxDxeLib.inf
+ 
+ [LibraryClasses.common.UEFI_APPLICATION]
+@@ -212,6 +212,8 @@
+   gEfiMdeModulePkgTokenSpaceGuid.PcdRecoveryFileName|L"FVMAIN.FV"
+ 
+ [Components]
++  MdeModulePkg/../../src/PciHotPlug/PciHotPlug.inf
++  MdeModulePkg/../../src/PciDxeShim/PciDxeShim.inf
+   MdeModulePkg/Application/HelloWorld/HelloWorld.inf
+   MdeModulePkg/Application/DumpDynPcd/DumpDynPcd.inf
+   MdeModulePkg/Application/MemoryProfileInfo/MemoryProfileInfo.inf
+diff --git a/MdePkg/MdePkg.dec b/MdePkg/MdePkg.dec
+index 9cdc915eba..2e04c26db4 100644
+--- a/MdePkg/MdePkg.dec
++++ b/MdePkg/MdePkg.dec
+@@ -2238,7 +2238,7 @@
+   #  BIT31 - Error message.<BR>
+   # @Prompt Debug Message Print Level.
+   # @Expression  0x80000002 | (gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel & 0x7F84AA00) == 0
+-  gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0x80000000|UINT32|0x00000006
++  gEfiMdePkgTokenSpaceGuid.PcdDebugPrintErrorLevel|0xFFFFFFFF|UINT32|0x00000006
+ 
+   ## The mask is used to control ReportStatusCodeLib behavior.<BR><BR>
+   #  BIT0 - Enable Progress Code.<BR>
