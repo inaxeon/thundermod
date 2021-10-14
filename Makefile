@@ -1,4 +1,5 @@
 EDK2_TOOLS = $(PWD)/edk2/BaseTools/Source/C/bin
+EDK2 = $(PWD)/edk2
 BUILD = $(PWD)/build
 TOOLS = $(PWD)/tools
 SRC = $(PWD)/src
@@ -17,9 +18,10 @@ default:
 $(GUIDSUB): $(TOOLS)/guidsub.c
 	gcc $(dir $@)/guidsub.c -o $@ -luuid
 
-linux-edk2-base:
+$(EDK2)/.configured:
 	cd edk2 && git submodule update --init
 	cd edk2 && bash -c '. edksetup.sh BaseTools'
+	cd edk2 && patch -p1 --forward < ../patches/edk2-with-serial-debug.patch || true
 	echo "ACTIVE_PLATFORM       = MdeModulePkg/MdeModulePkg.dsc" > edk2/Conf/target.txt
 	echo "TARGET                = RELEASE" >> edk2/Conf/target.txt
 	echo "TARGET_ARCH           = X64" >> edk2/Conf/target.txt
@@ -27,9 +29,9 @@ linux-edk2-base:
 	echo "TOOL_CHAIN_TAG        = GCC5" >> edk2/Conf/target.txt
 	echo "BUILD_RULE_CONF = Conf/build_rule.txt"  >> edk2/Conf/target.txt
 	cd edk2 && make -C BaseTools
+	touch $@
 
-linux-edk2:
-	cd edk2 && patch -p1 --forward < ../patches/edk2-with-serial-debug.patch || true
+linux-edk2: $(EDK2)/.configured
 	cd edk2 && bash -c '. edksetup.sh BaseTools && build'
 	cp -u $(PKGBUILD)/PciDxeShim/PciDxeShim/OUTPUT/PciDxeShim.efi $(BUILD)
 	cp -u $(PKGBUILD)/PciDxeShim/PciDxeShim/OUTPUT/PciDxeShim.depex $(BUILD)
