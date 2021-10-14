@@ -39,6 +39,7 @@ int main(int argc, char *argv[])
     const char *originalGuidStr = NULL;
     const char *newGuidStr = NULL;
     int opt = 0;
+    int ret = EXIT_FAILURE;
     bool substituted = false;
 
     uuid_t originalGuid;
@@ -59,32 +60,32 @@ int main(int argc, char *argv[])
             break;
         default:
             fprintf(stderr, "\r\nUsage: %s -f <filename> -o <original GUID> -n <new GUID>\n\n", argv[0]);
-            return EXIT_FAILURE;
+            goto fail;
         }
     }
 
     if (fileNameStr == NULL)
     {
         fprintf(stderr, "Error: No filename specified\n");
-        return EXIT_FAILURE;
+        goto fail;
     }
 
     if (originalGuidStr == NULL)
     {
         fprintf(stderr, "Error: Original GUID not specified\n");
-        return EXIT_FAILURE;
+        goto fail;
     }
 
     if (newGuidStr == NULL)
     {
         fprintf(stderr, "Error: New GUID not specified\n");
-        return EXIT_FAILURE;
+        goto fail;
     }
 
     if (uuid_parse(originalGuidStr, originalGuid))
     {
         fprintf(stderr, "Error: Failed to parse original GUID\n");
-        return EXIT_FAILURE;
+        goto fail;
     }
 
     uuid_fix_endianness(originalGuid);
@@ -92,7 +93,7 @@ int main(int argc, char *argv[])
     if (uuid_parse(newGuidStr, newGuid))
     {
         fprintf(stderr, "Error: Failed to parse new GUID\n");
-        return EXIT_FAILURE;
+        goto fail;
     }
 
     uuid_fix_endianness(newGuid);
@@ -102,7 +103,7 @@ int main(int argc, char *argv[])
     if (!f)
     {
         fprintf(stderr, "Error: Failed to open input file\n");
-        return EXIT_FAILURE;
+        goto fail;
     }
 
     fseek(f, 0, SEEK_END);
@@ -114,10 +115,11 @@ int main(int argc, char *argv[])
     if (fread(buffer, fileSize, 1, f) != 1)
     {
         fprintf(stderr, "Error: Failed to read input file\n");
-        return EXIT_FAILURE;
+        goto fail;
     }
 
     fclose(f);
+    f = NULL;
 
     for (pos = 0; pos < (fileSize - sizeof(uuid_t)); pos++)
     {
@@ -131,7 +133,7 @@ int main(int argc, char *argv[])
     if (!substituted)
     {
         fprintf(stdout, "GUID not found in source file. Exiting.\n");
-        return EXIT_FAILURE;
+        goto fail;
     }
 
     f = fopen(fileNameStr, "wb");
@@ -139,21 +141,27 @@ int main(int argc, char *argv[])
     if (!f)
     {
         fprintf(stderr, "Error: Failed to open file for writing\n");
-        return EXIT_FAILURE;
+        goto fail;
     }
 
     if (fwrite(buffer, fileSize, 1, f) != 1)
     {
         fprintf(stderr, "Error: Failed to write updated file\n");
-        return EXIT_FAILURE;
+        goto fail;
     }
 
     printf("Successfully updated protocol GUID\n");
 
-    fclose(f);
-    free(buffer);
+    ret = EXIT_SUCCESS;
 
-    return EXIT_SUCCESS;
+fail:
+
+    if (f)
+        fclose(f);
+    if (buffer)
+        free(buffer);
+
+    return ret;
 }
 
 void uuid_fix_endianness(uuid_t uuid)
