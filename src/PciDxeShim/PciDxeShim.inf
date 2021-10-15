@@ -25,6 +25,7 @@
   gEfiPciHotPlugInitProtocolGuid
   gEfiPciRootBridgeIoProtocolGuid
   gEfiPciHostBridgeResourceAllocationProtocolGuid
+  gEfiPciIoProtocolGuid
 
 [Depex]
   TRUE

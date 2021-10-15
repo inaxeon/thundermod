@@ -53,6 +53,8 @@ EFI_DRIVER_BINDING_PROTOCOL gPciBusDriverBinding = {
 
 LIST_ENTRY RootBridgeIoProtocolList;
 
+EFI_STATUS DumpInstalledDevices(IN EFI_DRIVER_BINDING_PROTOCOL *BindingProtocol, IN EFI_HANDLE Controller);
+
 EFI_STATUS EFIAPI PciDxeShimMain(IN EFI_HANDLE ImageHandle, IN EFI_SYSTEM_TABLE *SystemTable)
 {
   EFI_STATUS Status;
@@ -472,7 +474,12 @@ PciBusDriverBindingStart(
   if (Status != EFI_SUCCESS)
     return Status;
 
-  return OriginalProtocol->Start(OriginalProtocol, Controller, RemainingDevicePath);
+  Status = OriginalProtocol->Start(OriginalProtocol, Controller, RemainingDevicePath);
+
+  DumpInstalledDevices(This, Controller);
+
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -499,7 +506,7 @@ PciBusDriverBindingStop(
 {
   EFI_STATUS Status;
   EFI_DRIVER_BINDING_PROTOCOL *OriginalProtocol = FindDriverBindingProtocol();
-  
+
   DEBUG((DEBUG_INFO, "PciBusDriverBindingStop()\n"));
 
   Status = OriginalProtocol->Stop(OriginalProtocol, Controller, NumberOfChildren, ChildHandleBuffer);
@@ -510,6 +517,73 @@ PciBusDriverBindingStop(
   Status = CleanupDriver(This, Controller);
 
   return Status;
+}
+
+/**
+  Dump registers of installed PCI devices
+
+  @param  This                 Protocol instance pointer.
+  @param  Controller           Handle of device to stop driver on.
+
+  @retval EFI_SUCCESS          Success
+  @retval other                Failure
+
+**/
+EFI_STATUS DumpInstalledDevices(IN EFI_DRIVER_BINDING_PROTOCOL *BindingProtocol, IN EFI_HANDLE Controller)
+{
+  EFI_STATUS Status;
+  UINTN HandleCount;
+  EFI_HANDLE *HandleBuffer;
+  UINTN Index;
+  EFI_PCI_IO_PROTOCOL *PciIo;
+
+  Status = gBS->LocateHandleBuffer(ByProtocol, &gEfiPciIoProtocolGuid, NULL, &HandleCount, &HandleBuffer);
+
+  ASSERT_EFI_ERROR(Status);
+  if (EFI_ERROR(Status))
+    return Status;
+
+  for (Index = 0; Index < HandleCount; Index++)
+  {
+    UINTN SegmentNumber;
+    UINTN BusNumber;
+    UINTN DeviceNumber;
+    UINTN FunctionNumber;
+
+    Status = gBS->OpenProtocol(
+        HandleBuffer[Index],
+        &gEfiPciIoProtocolGuid,
+        (VOID **)&PciIo,
+        BindingProtocol->DriverBindingHandle,
+        Controller,
+        EFI_OPEN_PROTOCOL_GET_PROTOCOL);
+
+    ASSERT_EFI_ERROR(Status);
+    if (EFI_ERROR(Status))
+      return Status;
+
+    Status = PciIo->GetLocation(PciIo, &SegmentNumber, &BusNumber, &DeviceNumber, &FunctionNumber);
+
+    ASSERT_EFI_ERROR(Status);
+    if (EFI_ERROR(Status))
+      return Status;
+
+    DEBUG((DEBUG_ERROR, "PCI Device @ Segment %u: B:D:F = %02X:%02X:%02X\n", SegmentNumber, BusNumber, DeviceNumber, FunctionNumber));
+
+    Status = gBS->CloseProtocol(
+        HandleBuffer[Index],
+        &gEfiPciIoProtocolGuid,
+        BindingProtocol->DriverBindingHandle,
+        Controller);
+
+    ASSERT_EFI_ERROR(Status);
+    if (EFI_ERROR(Status))
+      return Status;
+  }
+
+  FreePool(HandleBuffer);
+
+  return EFI_SUCCESS;
 }
 
 /**
