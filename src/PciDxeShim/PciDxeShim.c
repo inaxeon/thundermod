@@ -527,9 +527,6 @@ EFI_DRIVER_BINDING_PROTOCOL *FindDriverBindingProtocol()
 
   gBS->LocateProtocol(&gDriverBindingProtocolSubstituteGuid, NULL, (VOID **)&gDriverBindingSubstituteProtocol);
 
-  if (gDriverBindingSubstituteProtocol != NULL)
-    return gDriverBindingSubstituteProtocol;
-
   return NULL;
 }
 

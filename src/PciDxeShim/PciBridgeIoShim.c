@@ -68,9 +68,12 @@ RootBridgeIoPollMem(
     IN UINT64 Delay,
     OUT UINT64 *Result)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoPollMem()\n"));
-  return OriginalProtocol->PollMem(OriginalProtocol, Width, Address, Mask, Value, Delay, Result);
+  Status = OriginalProtocol->PollMem(OriginalProtocol, Width, Address, Mask, Value, Delay, Result);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -116,9 +119,12 @@ RootBridgeIoPollIo(
     IN UINT64 Delay,
     OUT UINT64 *Result)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoPollIo()\n"));
-  return OriginalProtocol->PollIo(OriginalProtocol, Width, Address, Mask, Value, Delay, Result);
+  Status = OriginalProtocol->PollIo(OriginalProtocol, Width, Address, Mask, Value, Delay, Result);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -157,9 +163,12 @@ RootBridgeIoMemRead(
     IN UINTN Count,
     OUT VOID *Buffer)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoMemRead()\n"));
-  return OriginalProtocol->Mem.Read(OriginalProtocol, Width, Address, Count, Buffer);
+  Status = OriginalProtocol->Mem.Read(OriginalProtocol, Width, Address, Count, Buffer);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -198,9 +207,12 @@ RootBridgeIoMemWrite(
     IN UINTN Count,
     IN VOID *Buffer)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoMemWrite()\n"));
-  return OriginalProtocol->Mem.Write(OriginalProtocol, Width, Address, Count, Buffer);
+  Status = OriginalProtocol->Mem.Write(OriginalProtocol, Width, Address, Count, Buffer);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -233,9 +245,12 @@ RootBridgeIoIoRead(
     IN UINTN Count,
     OUT VOID *Buffer)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoIoRead()\n"));
-  return OriginalProtocol->Io.Read(OriginalProtocol, Width, Address, Count, Buffer);
+  Status = OriginalProtocol->Io.Read(OriginalProtocol, Width, Address, Count, Buffer);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -268,9 +283,12 @@ RootBridgeIoIoWrite(
     IN UINTN Count,
     IN VOID *Buffer)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoIoWrite()\n"));
-  return OriginalProtocol->Io.Write(OriginalProtocol, Width, Address, Count, Buffer);
+  Status = OriginalProtocol->Io.Write(OriginalProtocol, Width, Address, Count, Buffer);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -313,9 +331,12 @@ RootBridgeIoCopyMem(
     IN UINT64 SrcAddress,
     IN UINTN Count)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoCopyMem()\n"));
-  return OriginalProtocol->CopyMem(OriginalProtocol, Width, DestAddress, SrcAddress, Count);
+  Status = OriginalProtocol->CopyMem(OriginalProtocol, Width, DestAddress, SrcAddress, Count);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -341,9 +362,12 @@ RootBridgeIoPciRead(
     IN UINTN Count,
     IN OUT VOID *Buffer)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoPciRead()\n"));
-  return OriginalProtocol->Pci.Read(OriginalProtocol, Width, Address, Count, Buffer);
+  Status = OriginalProtocol->Pci.Read(OriginalProtocol, Width, Address, Count, Buffer);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -369,9 +393,12 @@ RootBridgeIoPciWrite(
     IN UINTN Count,
     IN OUT VOID *Buffer)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoPciWrite()\n"));
-  return OriginalProtocol->Pci.Write(OriginalProtocol, Width, Address, Count, Buffer);
+  Status = OriginalProtocol->Pci.Write(OriginalProtocol, Width, Address, Count, Buffer);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -405,9 +432,12 @@ RootBridgeIoMap(
     OUT EFI_PHYSICAL_ADDRESS *DeviceAddress,
     OUT VOID **Mapping)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoMap()\n"));
-  return OriginalProtocol->Map(OriginalProtocol, Operation, HostAddress, NumberOfBytes, DeviceAddress, Mapping);
+  Status = OriginalProtocol->Map(OriginalProtocol, Operation, HostAddress, NumberOfBytes, DeviceAddress, Mapping);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -433,9 +463,12 @@ RootBridgeIoUnmap(
     IN EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *This,
     IN VOID *Mapping)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoUnmap()\n"));
-  return OriginalProtocol->Unmap(OriginalProtocol, Mapping);
+  Status = OriginalProtocol->Unmap(OriginalProtocol, Mapping);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -474,9 +507,12 @@ RootBridgeIoAllocateBuffer(
     OUT VOID **HostAddress,
     IN UINT64 Attributes)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoAllocateBuffer()\n"));
-  return OriginalProtocol->AllocateBuffer(OriginalProtocol, Type, MemoryType, Pages, HostAddress, Attributes);
+  Status = OriginalProtocol->AllocateBuffer(OriginalProtocol, Type, MemoryType, Pages, HostAddress, Attributes);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -500,9 +536,12 @@ RootBridgeIoFreeBuffer(
     IN UINTN Pages,
     OUT VOID *HostAddress)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoFreeBuffer()\n"));
-  return OriginalProtocol->FreeBuffer(OriginalProtocol, Pages, HostAddress);
+  Status = OriginalProtocol->FreeBuffer(OriginalProtocol, Pages, HostAddress);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -531,9 +570,12 @@ EFIAPI
 RootBridgeIoFlush(
     IN EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *This)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoFlush()\n"));
-  return OriginalProtocol->Flush(OriginalProtocol);
+  Status = OriginalProtocol->Flush(OriginalProtocol);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -565,9 +607,12 @@ RootBridgeIoGetAttributes(
     OUT UINT64 *Supported,
     OUT UINT64 *Attributes)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoGetAttributes()\n"));
-  return OriginalProtocol->GetAttributes(OriginalProtocol, Supported, Attributes);
+  Status = OriginalProtocol->GetAttributes(OriginalProtocol, Supported, Attributes);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -614,9 +659,12 @@ RootBridgeIoSetAttributes(
     IN OUT UINT64 *ResourceBase,
     IN OUT UINT64 *ResourceLength)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoSetAttributes()\n"));
-  return OriginalProtocol->SetAttributes(OriginalProtocol, Attributes, ResourceBase, ResourceLength);
+  Status = OriginalProtocol->SetAttributes(OriginalProtocol, Attributes, ResourceBase, ResourceLength);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -650,7 +698,10 @@ RootBridgeIoConfiguration(
     IN EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *This,
     OUT VOID **Resources)
 {
+  EFI_STATUS Status;
   EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL *OriginalProtocol = FindRootBridgeIoProtocolMappingBySubstitute(This);
   //DEBUG((DEBUG_INFO, "RootBridgeIoConfiguration()\n"));
-  return OriginalProtocol->Configuration(OriginalProtocol, Resources);
+  Status = OriginalProtocol->Configuration(OriginalProtocol, Resources);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }

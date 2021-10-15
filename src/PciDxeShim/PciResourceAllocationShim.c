@@ -1,4 +1,3 @@
-#include "PciDxeShim.h"
 /**
  * File: PciResourceAllocationShim.c
  * Author: Matthew Millman
@@ -22,6 +21,29 @@
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */
 
+#include "PciDxeShim.h"
+//#include "../../../other/ResourceValidator.h"
+
+GLOBAL_REMOVE_IF_UNREFERENCED CHAR16 *mAcpiAddressSpaceTypeStr[] = {
+  L"Mem", L"I/O", L"Bus"
+};
+GLOBAL_REMOVE_IF_UNREFERENCED CHAR16 *mPciResourceTypeStr[] = {
+  L"I/O", L"Mem", L"PMem", L"Mem64", L"PMem64", L"Bus"
+};
+
+GLOBAL_REMOVE_IF_UNREFERENCED CHAR16 *mNotifyPhaseTypes[] = {
+  L"EfiPciHostBridgeBeginEnumeration",
+  L"EfiPciHostBridgeBeginBusAllocation",
+  L"EfiPciHostBridgeEndBusAllocation",
+  L"EfiPciHostBridgeBeginResourceAllocation",
+  L"EfiPciHostBridgeAllocateResources",
+  L"EfiPciHostBridgeSetResources",
+  L"EfiPciHostBridgeFreeResources",
+  L"EfiPciHostBridgeEndResourceAllocation",
+  L"EfiPciHostBridgeEndEnumeration",
+  L"EfiMaxPciHostBridgeEnumerationPhase"
+};
+
 /**
 
   Enter a certain phase of the PCI enumeration process.
@@ -40,18 +62,21 @@ NotifyPhase(
     IN EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *This,
     IN EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PHASE Phase)
 {
+  EFI_STATUS Status;
   EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *OriginalProtocol = FindResourceAllocationProtocolMappingBySubstitute(This);
-  DEBUG((DEBUG_INFO, "NotifyPhase()\n"));
-  return OriginalProtocol->NotifyPhase(OriginalProtocol, Phase);
+  DEBUG((DEBUG_INFO, "NotifyPhase(%s)\n", mNotifyPhaseTypes[Phase]));
+  Status = OriginalProtocol->NotifyPhase(OriginalProtocol, Phase);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
 
-  Return the device handle of the next PCI root bridge that is associated with
+  Status = the device handle of the next PCI root bridge that is associated with
   this Host Bridge.
 
   @param This              The EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_ PROTOCOL instance.
-  @param RootBridgeHandle  Returns the device handle of the next PCI Root Bridge.
+  @param RootBridgeHandle  Status =s the device handle of the next PCI Root Bridge.
                            On input, it holds the RootBridgeHandle returned by the most
                            recent call to GetNextRootBridge().The handle for the first
                            PCI Root Bridge is returned if RootBridgeHandle is NULL on input.
@@ -67,14 +92,17 @@ GetNextRootBridge(
     IN EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *This,
     IN OUT EFI_HANDLE *RootBridgeHandle)
 {
+  EFI_STATUS Status;
   EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *OriginalProtocol = FindResourceAllocationProtocolMappingBySubstitute(This);
   DEBUG((DEBUG_INFO, "GetNextRootBridge()\n"));
-  return OriginalProtocol->GetNextRootBridge(OriginalProtocol, RootBridgeHandle);
+  Status = OriginalProtocol->GetNextRootBridge(OriginalProtocol, RootBridgeHandle);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
 
-  Returns the attributes of a PCI Root Bridge.
+  Status =s the attributes of a PCI Root Bridge.
 
   @param This              The EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_ PROTOCOL instance.
   @param RootBridgeHandle  The device handle of the PCI Root Bridge
@@ -95,9 +123,12 @@ GetAttributes(
     IN EFI_HANDLE RootBridgeHandle,
     OUT UINT64 *Attributes)
 {
+  EFI_STATUS Status;
   EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *OriginalProtocol = FindResourceAllocationProtocolMappingBySubstitute(This);
   DEBUG((DEBUG_INFO, "GetAttributes()\n"));
-  return OriginalProtocol->GetAllocAttributes(OriginalProtocol, RootBridgeHandle, Attributes);
+  Status = OriginalProtocol->GetAllocAttributes(OriginalProtocol, RootBridgeHandle, Attributes);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -121,9 +152,12 @@ StartBusEnumeration(
     IN EFI_HANDLE RootBridgeHandle,
     OUT VOID **Configuration)
 {
+  EFI_STATUS Status;
   EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *OriginalProtocol = FindResourceAllocationProtocolMappingBySubstitute(This);
-  DEBUG((DEBUG_INFO, "GetAttributes()\n"));
-  return OriginalProtocol->StartBusEnumeration(OriginalProtocol, RootBridgeHandle, Configuration);
+  DEBUG((DEBUG_INFO, "StartBusEnumeration()\n"));
+  Status = OriginalProtocol->StartBusEnumeration(OriginalProtocol, RootBridgeHandle, Configuration);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -146,9 +180,12 @@ SetBusNumbers(
     IN EFI_HANDLE RootBridgeHandle,
     IN VOID *Configuration)
 {
+  EFI_STATUS Status;
   EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *OriginalProtocol = FindResourceAllocationProtocolMappingBySubstitute(This);
   DEBUG((DEBUG_INFO, "SetBusNumbers()\n"));
-  return OriginalProtocol->SetBusNumbers(OriginalProtocol, RootBridgeHandle, Configuration);
+  Status = OriginalProtocol->SetBusNumbers(OriginalProtocol, RootBridgeHandle, Configuration);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -170,9 +207,36 @@ SubmitResources(
     IN EFI_HANDLE RootBridgeHandle,
     IN VOID *Configuration)
 {
+  EFI_STATUS Status;
+  EFI_ACPI_ADDRESS_SPACE_DESCRIPTOR *Descriptor;
   EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *OriginalProtocol = FindResourceAllocationProtocolMappingBySubstitute(This);
+
   DEBUG((DEBUG_INFO, "SubmitResources()\n"));
-  return OriginalProtocol->SubmitResources(OriginalProtocol, RootBridgeHandle, Configuration);
+
+  //ResourceValidator(Configuration);
+
+  for (Descriptor = (EFI_ACPI_ADDRESS_SPACE_DESCRIPTOR *)Configuration; Descriptor->Desc == ACPI_ADDRESS_SPACE_DESCRIPTOR; Descriptor++)
+  {
+    DEBUG((DEBUG_INFO, "%s: Granularity/SpecificFlag = %ld / %02x%s\n",
+           mAcpiAddressSpaceTypeStr[Descriptor->ResType], Descriptor->AddrSpaceGranularity, Descriptor->SpecificFlag,
+           (Descriptor->SpecificFlag & EFI_ACPI_MEMORY_RESOURCE_SPECIFIC_FLAG_CACHEABLE_PREFETCHABLE) != 0 ? L" (Prefetchable)" : L""));
+
+    DEBUG((DEBUG_INFO, "\tDescriptor->Desc: %u\n", Descriptor->Desc));
+    DEBUG((DEBUG_INFO, "\tDescriptor->Len: %u\n", Descriptor->Len));
+    DEBUG((DEBUG_INFO, "\tDescriptor->ResType: %u\n", Descriptor->ResType));
+    DEBUG((DEBUG_INFO, "\tDescriptor->GenFlag: 0x%X\n", Descriptor->GenFlag));
+    DEBUG((DEBUG_INFO, "\tDescriptor->SpecificFlag: 0x%X\n", Descriptor->SpecificFlag));
+    DEBUG((DEBUG_INFO, "\tDescriptor->AddrSpaceGranularity: 0x%lX\n", Descriptor->AddrSpaceGranularity));
+    DEBUG((DEBUG_INFO, "\tDescriptor->AddrRangeMin: 0x%lX\n", Descriptor->AddrRangeMin));
+    DEBUG((DEBUG_INFO, "\tDescriptor->AddrRangeMax: 0x%lX\n", Descriptor->AddrRangeMax));
+    DEBUG((DEBUG_INFO, "\tDescriptor->AddrTranslationOffset: 0x%lX\n", Descriptor->AddrTranslationOffset));
+    DEBUG((DEBUG_INFO, "\tDescriptor->AddrLen: 0x%lX\n\n", Descriptor->AddrLen));
+
+  }
+
+  Status = OriginalProtocol->SubmitResources(OriginalProtocol, RootBridgeHandle, Configuration);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -197,9 +261,12 @@ GetProposedResources(
     IN EFI_HANDLE RootBridgeHandle,
     OUT VOID **Configuration)
 {
+  EFI_STATUS Status;
   EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *OriginalProtocol = FindResourceAllocationProtocolMappingBySubstitute(This);
   DEBUG((DEBUG_INFO, "GetProposedResources()\n"));
-  return OriginalProtocol->GetProposedResources(OriginalProtocol, RootBridgeHandle, Configuration);
+  Status = OriginalProtocol->GetProposedResources(OriginalProtocol, RootBridgeHandle, Configuration);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }
 
 /**
@@ -224,7 +291,10 @@ PreprocessController(
     IN EFI_PCI_ROOT_BRIDGE_IO_PROTOCOL_PCI_ADDRESS PciAddress,
     IN EFI_PCI_CONTROLLER_RESOURCE_ALLOCATION_PHASE Phase)
 {
+  EFI_STATUS Status;
   EFI_PCI_HOST_BRIDGE_RESOURCE_ALLOCATION_PROTOCOL *OriginalProtocol = FindResourceAllocationProtocolMappingBySubstitute(This);
   DEBUG((DEBUG_INFO, "PreprocessController()\n"));
-  return OriginalProtocol->PreprocessController(OriginalProtocol, RootBridgeHandle, PciAddress, Phase);
+  Status = OriginalProtocol->PreprocessController(OriginalProtocol, RootBridgeHandle, PciAddress, Phase);
+  ASSERT_EFI_ERROR(Status);
+  return Status;
 }

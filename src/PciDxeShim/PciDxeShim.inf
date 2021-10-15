@@ -10,6 +10,7 @@
   PciDxeShim.c
   PciBridgeIoShim.c
   PciResourceAllocationShim.c
+  # ../../../other/ResourceValidator.c
   ../../edk2/MdeModulePkg/Bus/Pci/PciBusDxe/ComponentName.c
 
 [Packages]
