@@ -549,6 +549,7 @@ EFI_STATUS DumpInstalledDevices(IN EFI_DRIVER_BINDING_PROTOCOL *BindingProtocol,
     UINTN BusNumber;
     UINTN DeviceNumber;
     UINTN FunctionNumber;
+    UINT32 Register;
 
     Status = gBS->OpenProtocol(
         HandleBuffer[Index],
@@ -568,7 +569,69 @@ EFI_STATUS DumpInstalledDevices(IN EFI_DRIVER_BINDING_PROTOCOL *BindingProtocol,
     if (EFI_ERROR(Status))
       return Status;
 
-    DEBUG((DEBUG_ERROR, "PCI Device @ Segment %u: B:D:F = %02X:%02X:%02X\n", SegmentNumber, BusNumber, DeviceNumber, FunctionNumber));
+    DEBUG((DEBUG_INFO, "\nPCI Device @ Segment %u: BDF = %02X:%02X:%02X\n", SegmentNumber, BusNumber, DeviceNumber, FunctionNumber));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x00, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tDevice ID: 0x%04X Vendor ID: 0x%04X\n", ((Register >> 16) & 0xFFFF), (Register & 0xFFFF)));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x08, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tClass: 0x%06X Revision: 0x%02X\n", ((Register >> 8) & 0xFFFFFF), (Register & 0xFF)));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x0C, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tBIST: 0x%02X Header Type: 0x%02X Latency Timer: 0x%02X Cache Line Size: 0x%02X\n",
+           ((Register >> 24) & 0xFF), ((Register >> 16) & 0xFF), ((Register >> 8) & 0xFF), (Register & 0xFF)));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x10, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tBAR0: 0x%08X\n", Register));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x14, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tBAR1: 0x%08X\n", Register));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x18, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tBAR2: 0x%08X\n", Register));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x1C, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tBAR3: 0x%08X\n", Register));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x20, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tBAR4: 0x%08X\n", Register));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x24, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tBAR5: 0x%08X\n", Register));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x28, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tCIS Pointer: 0x%08X\n", Register));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x2C, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tSubsystem ID: 0x%04X Subsystem Vendor ID: 0x%04X\n", ((Register >> 16) & 0xFFFF), (Register & 0xFFFF)));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x30, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tROMBAR: 0x%08X\n", Register));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x34, 1, &Register);
+    
+    DEBUG((DEBUG_INFO, "\tReserved: 0x%06X Capability Pointer: 0x%02X\n", ((Register >> 8) & 0xFFFFFF), (Register & 0xFF)));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x38, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tRESERVED: 0x%08X\n", Register));
+
+    PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x3C, 1, &Register);
+
+    DEBUG((DEBUG_INFO, "\tMax Latency: 0x%02X Minimum Grant: 0x%02X Interrupt Pin: 0x%02X Interrupt Line: 0x%02X\n",
+      ((Register >> 24) & 0xFF), ((Register >> 16) & 0xFF), ((Register >> 8) & 0xFF), (Register & 0xFF)));
 
     Status = gBS->CloseProtocol(
         HandleBuffer[Index],
