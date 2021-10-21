@@ -573,7 +573,7 @@ EFI_STATUS DumpInstalledDevices(IN EFI_DRIVER_BINDING_PROTOCOL *BindingProtocol,
 
     PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x00, 1, &Register);
 
-    DEBUG((DEBUG_INFO, "\tDevice ID: 0x%04X Vendor ID: 0x%04X\n", ((Register >> 16) & 0xFFFF), (Register & 0xFFFF)));
+    DEBUG((DEBUG_INFO, "\nVendor ID: 0x%04X Device ID: 0x%04X\n", (Register & 0xFFFF), ((Register >> 16) & 0xFFFF)));
 
     PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x08, 1, &Register);
 
@@ -621,7 +621,7 @@ EFI_STATUS DumpInstalledDevices(IN EFI_DRIVER_BINDING_PROTOCOL *BindingProtocol,
     DEBUG((DEBUG_INFO, "\tROMBAR: 0x%08X\n", Register));
 
     PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x34, 1, &Register);
-    
+
     DEBUG((DEBUG_INFO, "\tReserved: 0x%06X Capability Pointer: 0x%02X\n", ((Register >> 8) & 0xFFFFFF), (Register & 0xFF)));
 
     PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x38, 1, &Register);
@@ -631,7 +631,7 @@ EFI_STATUS DumpInstalledDevices(IN EFI_DRIVER_BINDING_PROTOCOL *BindingProtocol,
     PciIo->Pci.Read(PciIo, EfiPciIoWidthUint32, 0x3C, 1, &Register);
 
     DEBUG((DEBUG_INFO, "\tMax Latency: 0x%02X Minimum Grant: 0x%02X Interrupt Pin: 0x%02X Interrupt Line: 0x%02X\n",
-      ((Register >> 24) & 0xFF), ((Register >> 16) & 0xFF), ((Register >> 8) & 0xFF), (Register & 0xFF)));
+           ((Register >> 24) & 0xFF), ((Register >> 16) & 0xFF), ((Register >> 8) & 0xFF), (Register & 0xFF)));
 
     Status = gBS->CloseProtocol(
         HandleBuffer[Index],

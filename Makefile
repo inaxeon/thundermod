@@ -42,9 +42,9 @@ linux-edk2: $(EDK2)/.configured
 $(BUILD)/PciBusDxe.ffs: $(BUILD)/PciBusDxe.efi $(GUIDSUB)
 	mkdir -p build
 	cp -f $< $(basename $@).Sub.efi
-	$(GUIDSUB) -f $(basename $@).Sub.efi -o 18A031AB-B443-4D1A-A5C0-0C09261E9F71 -n E8AD4538-0A8D-46E6-8A1F-0903B79A91BB
-	$(GUIDSUB) -f $(basename $@).Sub.efi -o 2F707EBB-4A1A-11D4-9A38-0090273FC14D -n F9E627D2-482F-49E9-A165-F022C96AF184
-	$(GUIDSUB) -f $(basename $@).Sub.efi -o CF8034BE-6768-4D8B-B739-7CCE683A9FBE -n 35F37E0E-3EB1-453A-A5AD-4B4C15A63C18
+	#$(GUIDSUB) -f $(basename $@).Sub.efi -o 18A031AB-B443-4D1A-A5C0-0C09261E9F71 -n E8AD4538-0A8D-46E6-8A1F-0903B79A91BB
+	#$(GUIDSUB) -f $(basename $@).Sub.efi -o 2F707EBB-4A1A-11D4-9A38-0090273FC14D -n F9E627D2-482F-49E9-A165-F022C96AF184
+	#$(GUIDSUB) -f $(basename $@).Sub.efi -o CF8034BE-6768-4D8B-B739-7CCE683A9FBE -n 35F37E0E-3EB1-453A-A5AD-4B4C15A63C18
 	$(GENSEC) -o $(basename $@).sec_ui -s EFI_SECTION_USER_INTERFACE -n "`cat $(PCIBUSBUILD)/$(basename $(notdir $@)).inf | grep -m1 BASE_NAME | cut -f 2 -d '=' | xargs`"
 	$(GENSEC) $(basename $@).Sub.efi -s EFI_SECTION_PE32 -o $(basename $@).sec_pe32
 	$(GENSEC) -s EFI_SECTION_COMPRESSION -c PI_STD $(basename $@).sec_pe32 $(basename $@).sec_ui -o $(basename $@).sec_compressed

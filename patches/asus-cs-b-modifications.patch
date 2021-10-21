@@ -1,0 +1,110 @@
+diff --git a/MdeModulePkg/Bus/Pci/PciBusDxe/PciEnumerator.c b/MdeModulePkg/Bus/Pci/PciBusDxe/PciEnumerator.c
+index 8db1ebf8ec..5d2f705c9f 100644
+--- a/MdeModulePkg/Bus/Pci/PciBusDxe/PciEnumerator.c
++++ b/MdeModulePkg/Bus/Pci/PciBusDxe/PciEnumerator.c
+@@ -75,11 +75,12 @@ PciEnumerator (
+   //
+   // Notify the pci bus enumeration is about to complete
+   //
+-  Status = NotifyPhase (PciResAlloc, EfiPciHostBridgeEndEnumeration);
++  // AMIBIOS PciHostBridge does not want this. Don't send it
++  //Status = NotifyPhase (PciResAlloc, EfiPciHostBridgeEndEnumeration);
+ 
+-  if (EFI_ERROR (Status)) {
+-    return Status;
+-  }
++  //if (EFI_ERROR (Status)) {
++  //  return Status;
++  //}
+ 
+   //
+   // Process P2C
+@@ -1149,6 +1150,8 @@ ConstructAcpiResourceRequestor (
+       // non ISA range
+       //
+       Ptr->SpecificFlag = 1;
++      Ptr->GenFlag = 0xC;
++      Ptr->AddrSpaceGranularity = 16;
+       Ptr->AddrLen      = IoNode->Length;
+       Ptr->AddrRangeMax = IoNode->Alignment;
+ 
+@@ -1167,7 +1170,8 @@ ConstructAcpiResourceRequestor (
+       //
+       // Nonprefechable
+       //
+-      Ptr->SpecificFlag = 0;
++      Ptr->SpecificFlag = 1;
++      Ptr->GenFlag = 0xC;
+       //
+       // 32 bit
+       //
+@@ -1191,7 +1195,8 @@ ConstructAcpiResourceRequestor (
+       //
+       // prefechable
+       //
+-      Ptr->SpecificFlag = 0x6;
++      Ptr->SpecificFlag = 0x7;
++      Ptr->GenFlag = 0xC;
+       //
+       // 32 bit
+       //
+diff --git a/MdeModulePkg/Bus/Pci/PciBusDxe/PciLib.c b/MdeModulePkg/Bus/Pci/PciBusDxe/PciLib.c
+index 4caac56f1d..6f7b1e6183 100644
+--- a/MdeModulePkg/Bus/Pci/PciBusDxe/PciLib.c
++++ b/MdeModulePkg/Bus/Pci/PciBusDxe/PciLib.c
+@@ -519,7 +519,7 @@ PciHostBridgeResourceAllocator (
+       IoBridge = CreateResourceNode (
+                    RootBridgeDev,
+                    0,
+-                   FeaturePcdGet (PcdPciBridgeIoAlignmentProbe) ? 0x1FF: 0xFFF,
++                   0x1FF,
+                    RB_IO_RANGE,
+                    PciBarTypeIo16,
+                    PciResUsageTypical
+@@ -528,7 +528,7 @@ PciHostBridgeResourceAllocator (
+       Mem32Bridge = CreateResourceNode (
+                       RootBridgeDev,
+                       0,
+-                      0xFFFFF,
++                      0xFFF,
+                       RB_MEM32_RANGE,
+                       PciBarTypeMem32,
+                       PciResUsageTypical
+@@ -537,7 +537,7 @@ PciHostBridgeResourceAllocator (
+       PMem32Bridge = CreateResourceNode (
+                        RootBridgeDev,
+                        0,
+-                       0xFFFFF,
++                       0xFFF,
+                        RB_PMEM32_RANGE,
+                        PciBarTypePMem32,
+                        PciResUsageTypical
+diff --git a/MdeModulePkg/Bus/Pci/PciBusDxe/PciResourceSupport.c b/MdeModulePkg/Bus/Pci/PciBusDxe/PciResourceSupport.c
+index 4969ee0f64..cc239be47e 100644
+--- a/MdeModulePkg/Bus/Pci/PciBusDxe/PciResourceSupport.c
++++ b/MdeModulePkg/Bus/Pci/PciBusDxe/PciResourceSupport.c
+@@ -1288,6 +1288,24 @@ ProgramBar (
+   //
+   Node->PciDev->Allocated = TRUE;
+ 
++  {
++    EFI_STATUS Status;
++    UINTN SegmentNumber;
++    UINTN BusNumber;
++    UINTN DeviceNumber;
++    UINTN FunctionNumber;
++    
++    Status = PciIo->GetLocation(PciIo, &SegmentNumber, &BusNumber, &DeviceNumber, &FunctionNumber);
++
++    ASSERT_EFI_ERROR(Status);
++
++    // HACK (To get the IGD working)
++    // I have nfi how this supposed to be done properly. Will investigate further in future.
++    if (SegmentNumber == 0x00 && BusNumber == 0x00 && DeviceNumber == 0x02 && FunctionNumber == 0x00 &&
++      (Node->PciDev->PciBar[Node->Bar]).BarType == 0x06 && (Node->PciDev->PciBar[Node->Bar]).Offset == 0x18)
++      Address = 0xE0000000;
++  }
++
+   switch ((Node->PciDev->PciBar[Node->Bar]).BarType) {
+ 
+   case PciBarTypeIo16:
