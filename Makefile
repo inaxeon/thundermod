@@ -37,6 +37,8 @@ linux-edk2: $(EDK2)/.configured
 	cp -u $(PKGBUILD)/PciDxeShim/PciDxeShim/OUTPUT/PciDxeShim.depex $(BUILD)
 	cp -u $(PKGBUILD)/PciHotPlug/PciHotPlug/OUTPUT/PciHotPlug.efi $(BUILD)
 	cp -u $(PKGBUILD)/PciHotPlug/PciHotPlug/OUTPUT/PciHotPlug.depex $(BUILD)
+	cp -u $(PKGBUILD)/NvsPatcher/NvsPatcher/OUTPUT/NvsPatcher.efi $(BUILD)
+	cp -u $(PKGBUILD)/NvsPatcher/NvsPatcher/OUTPUT/NvsPatcher.depex $(BUILD)
 	cp -u $(PCIBUSBUILD)/PciBusDxe.efi $(BUILD)
 
 $(BUILD)/PciBusDxe.ffs: $(BUILD)/PciBusDxe.efi $(GUIDSUB)
@@ -58,7 +60,7 @@ $(BUILD)/%.ffs: $(BUILD)/%.efi $(BUILD)/%.depex
 	$(GENSEC) -s EFI_SECTION_COMPRESSION -c PI_STD $(basename $@).sec_pe32 $(basename $@).sec_ui -o $(basename $@).sec_compressed
 	$(GENFFS) -i $(basename $@).sec_depex -i $(basename $@).sec_compressed -t EFI_FV_FILETYPE_DRIVER -g `cat $(SRC)/$(basename $(notdir $@))/$(basename $(notdir $@)).inf | grep -m1 FILE_GUID | cut -f 2 -d '=' | xargs` -s -o $(basename $@).ffs
 
-linux-efi-ffs: linux-edk2 $(BUILD)/PciHotPlug.ffs $(BUILD)/PciDxeShim.ffs $(BUILD)/PciBusDxe.ffs
+linux-efi-ffs: linux-edk2 $(BUILD)/PciHotPlug.ffs $(BUILD)/PciDxeShim.ffs $(BUILD)/NvsPatcher.ffs $(BUILD)/PciBusDxe.ffs
 
 clean: 
 	rm -f $(GUIDSUB)

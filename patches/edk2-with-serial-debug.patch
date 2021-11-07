@@ -1,5 +1,18 @@
+diff --git a/MdeModulePkg/MdeModulePkg.dec b/MdeModulePkg/MdeModulePkg.dec
+index 133e04ee86..0d2b2fa330 100644
+--- a/MdeModulePkg/MdeModulePkg.dec
++++ b/MdeModulePkg/MdeModulePkg.dec
+@@ -666,6 +666,8 @@
+   ## Include/Protocol/VariablePolicy.h
+   gEdkiiVariablePolicyProtocolGuid = { 0x81D1675C, 0x86F6, 0x48DF, { 0xBD, 0x95, 0x9A, 0x6E, 0x4F, 0x09, 0x25, 0xC3 } }
+ 
++gEfiGlobalNvsAreaProtocolGuid = { 0x74e1e48, 0x8132, 0x47a1, { 0x8c, 0x2c, 0x3f, 0x14, 0xad, 0x9a, 0x66, 0xdc } }
++
+ [PcdsFeatureFlag]
+   ## Indicates if the platform can support update capsule across a system reset.<BR><BR>
+   #   TRUE  - Supports update capsule across a system reset.<BR>
 diff --git a/MdeModulePkg/MdeModulePkg.dsc b/MdeModulePkg/MdeModulePkg.dsc
-index b1d8346186..33f8eb94bd 100644
+index b1d8346186..9306665868 100644
 --- a/MdeModulePkg/MdeModulePkg.dsc
 +++ b/MdeModulePkg/MdeModulePkg.dsc
 @@ -69,7 +69,7 @@
@@ -47,12 +60,13 @@ index b1d8346186..33f8eb94bd 100644
    LockBoxLib|MdeModulePkg/Library/SmmLockBoxLib/SmmLockBoxDxeLib.inf
  
  [LibraryClasses.common.UEFI_APPLICATION]
-@@ -212,6 +212,8 @@
+@@ -212,6 +212,9 @@
    gEfiMdeModulePkgTokenSpaceGuid.PcdRecoveryFileName|L"FVMAIN.FV"
  
  [Components]
 +  MdeModulePkg/../../src/PciHotPlug/PciHotPlug.inf
 +  MdeModulePkg/../../src/PciDxeShim/PciDxeShim.inf
++  MdeModulePkg/../../src/NvsPatcher/NvsPatcher.inf
    MdeModulePkg/Application/HelloWorld/HelloWorld.inf
    MdeModulePkg/Application/DumpDynPcd/DumpDynPcd.inf
    MdeModulePkg/Application/MemoryProfileInfo/MemoryProfileInfo.inf

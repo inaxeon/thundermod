@@ -1,0 +1,24 @@
+[Defines]
+  INF_VERSION = 0x00013370
+  BASE_NAME = NvsPatcher
+  FILE_GUID = 95A89355-160A-4B86-99CF-C2CE26F3A841
+  MODULE_TYPE = DXE_DRIVER
+  VERSION_STRING = 1.0
+  ENTRY_POINT = UefiMain
+
+[Sources]
+  NvsPatcher.c
+
+[Packages]
+  MdePkg/MdePkg.dec
+  MdeModulePkg/MdeModulePkg.dec
+
+[LibraryClasses]
+  UefiDriverEntryPoint
+  UefiLib
+
+[Protocols]
+  gEfiGlobalNvsAreaProtocolGuid
+
+[Depex]
+  gEfiGlobalNvsAreaProtocolGuid
